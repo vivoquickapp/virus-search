@@ -1,0 +1,184 @@
+<template>
+  <div class="wrap">
+    <div class="cover">
+      <text>疫情全民热搜</text>
+    </div>
+    <div class="tabs">
+      <text for="{{list}}" class="{{active === $idx? 'active' : ''}}" onclick="gotoIndex($idx)">{{$item.category}}</text>
+    </div>
+    <list class="list" id="list">
+      <list-item class="module" for="{{(index, item) in list}}" type="module">
+        <text class="category" onappear="appearHandler(index)">{{item.category}}</text>
+        <div class="content {{$idx? 'bt': ''}}" for="{{title in item.data}}" onclick="{{routeDetail(title.url)}}">
+          <div>
+            <text class="index top-{{$idx+1}}">{{$idx+1}}</text>
+            <text class="rumor" show="{{index === 3}}">谣言</text>
+            <text class="title">{{title.title}}</text>
+            <text class="rank">{{title.rank}}</text>
+          </div>
+          <text class="hot" show="{{!$idx}}">热</text>
+        </div>
+      </list-item>
+    </list>
+  </div>
+</template>
+
+<script>
+  import router from '@system.router'
+  import fetch from '@system.fetch'
+
+  export default {
+    data() {
+      return {
+        active: 0,
+        list: []
+      }
+    },
+    async onInit() {
+      this.list = await this.getListData();
+    },
+    getListData() {
+      return new Promise((resolve, reject) => {
+        fetch.fetch({
+          url: 'http://your-api-domain/puppeteer'
+        }).then((res)=> {
+          console.log(res);
+          resolve(JSON.parse(res.data.data));
+        }).catch((err)=> {reject(err)})
+      })
+    },
+    routeDetail(url) {
+      router.push({
+        uri: url
+      })
+    },
+    gotoIndex(index) {
+      this.$element('list').scrollTo({index: index})
+      this.active = index
+    },
+    appearHandler(index) {
+      this.active = index
+    }
+  }
+</script>
+
+<style lang="less">
+  .wrap {
+    flex-direction: column;
+
+    .cover {
+      height: 100px;
+      width: 750px;
+      background-color: #0ba6af;
+      color: #ffffff;
+      padding: 0 20px;
+
+      text {
+        color: #FFFFFF;
+        font-size: 40px;
+      }
+    }
+
+    .tabs {
+      height: 100px;
+      justify-content: space-around;
+      align-items: center;
+
+      text {
+        font-weight: bold;
+        height: 80px;
+      }
+    }
+
+    .list {
+      padding: 0 20px;
+
+      .module {
+        background: linear-gradient('#b5f2f3 0%', '#ffffff 20%');
+        padding: 20px;
+        border: 1px solid #DCDCDC;
+        border-radius: 30px;
+        margin-bottom: 20px;
+        margin-top: 20px;
+        flex-direction: column;
+
+        .category {
+          align-self: center;
+          font-size: 40px;
+          color: #000000;
+          font-weight: bold;
+          line-height: 80px;
+        }
+
+        .content {
+          height: 80px;
+          justify-content: space-between;
+
+          .rumor {
+            height: 24px;
+            padding: 0 10px;
+            margin-right: 10px;
+            background-color: #ff1845;
+            color: #FFFFFF;
+            border-radius: 12px;
+            font-size: 16px;
+            align-self: center;
+          }
+
+          .hot {
+            background-color: #ff792f;
+            font-size: 20px;
+            padding: 0 10px;
+            height: 28px;
+            line-height: 28px;
+            border-radius: 14px;
+            text-align: center;
+            align-self: center;
+            color: #FFFFFF;
+          }
+
+          .index {
+            width: 50px;
+            font-weight: bold;
+          }
+
+          .top-1 {
+            color: red;
+          }
+
+          .top-2 {
+            color: coral;
+          }
+
+          .top-3 {
+            color: sandybrown;
+          }
+
+          .title {
+            margin-right: 20px;
+            color: #000000;
+            font-weight: bold;
+          }
+
+          .rank {
+            color: #9c9c9c;
+            font-size: 20px;
+          }
+        }
+
+        .content:active {
+          background-color: rgba(11, 168, 175, 0.1);
+        }
+      }
+    }
+  }
+
+  .bt {
+    border-top: 1px solid #DCDCDC;
+  }
+
+  .active {
+    border-bottom: 4px solid #0ba6af;
+    color: #0ba6af;
+  }
+</style>
